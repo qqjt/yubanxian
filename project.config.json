@@ -1,0 +1,9 @@
+{
+	"appid": "wx7d7e72b59cd00931",
+	"miniprogramRoot": "miniprogram/",
+	"cloudfunctionRoot": "cloudfunctions/",
+	"setting": {},
+	"projectname": "%E4%BD%99%E5%8D%8A%E4%BB%99",
+	"libVersion": "2.10.0",
+	"simulatorType": "wechat"
+}
