@@ -10,7 +10,7 @@
                 <view class="weui-cells__title">技能时间（秒）</view>
                 <view class="weui-cells weui-cells_form">
                     <view class="weui-cell">
-                        <input class="weui-input" type="number" bind:input="onCDInput" placeholder="技能CD/单跳间隔"/>
+                        <input class="weui-input" type="digit" bind:input="onCDInput" placeholder="技能CD/单跳间隔"/>
                     </view>
                 </view>
             </view>
