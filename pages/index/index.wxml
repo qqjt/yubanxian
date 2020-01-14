@@ -1,0 +1,16 @@
+<view class="page">
+    <view class="page__hd">
+        <view class="page__title">余半仙</view>
+        <view class="page__desc">《剑侠情缘网络版叁》（剑网3）实用小工具。</view>
+    </view>
+    <view class="page__bd">
+        <view class="weui-grids">
+            <block>
+                <navigator url="../tools/accelerate/accelerate" class="weui-grid" hover-class="weui-grid_active">
+                    <image class="weui-grid__icon" src="/images/icon_nav_form.png" />
+                    <view class="weui-grid__label">加速宝典</view>
+                </navigator>
+            </block>
+        </view>
+    </view>
+</view>

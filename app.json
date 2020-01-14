@@ -1,7 +1,27 @@
 {
   "pages": [
-    "pages/index/index"
+    "pages/index/index",
+    "pages/me/me",
+    "pages/tools/accelerate/accelerate"
   ],
+  "tabBar": {
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "/images/icon_nav_widget.png",
+        "selectedIconPath": "/images/icon_nav_widget.png",
+        "selectedColor": "#07c160",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/me/me",
+        "iconPath": "/images/icon_nav_special.png",
+        "selectedIconPath": "/images/icon_nav_special.png",
+        "selectedColor": "#07c160",
+        "text": "我的"
+      }
+    ]
+  },
   "window": {
     "backgroundColor": "#F6F6F6",
     "backgroundTextStyle": "light",
