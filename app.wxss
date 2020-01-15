@@ -36,6 +36,9 @@ page {
     text-align: left;
     font-size: 14px;
 }
-.weui-cell_example:before{
-    left:52px;
+.line{
+    margin: 0 auto;
+    width: 100%;
+    height: 2rpx;
+    background-color: #D8D8D8;
 }
