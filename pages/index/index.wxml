@@ -7,7 +7,7 @@
         <view class="weui-grids">
             <block>
                 <navigator url="../tools/accelerate/accelerate" class="weui-grid" hover-class="weui-grid_active">
-                    <image class="weui-grid__icon" src="/images/icon_nav_form.png" />
+                    <image class="weui-grid__icon" src="/images/icon_nav_form.png"/>
                     <view class="weui-grid__label">加速宝典</view>
                 </navigator>
             </block>

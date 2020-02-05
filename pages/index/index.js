@@ -1,7 +1,7 @@
 Page({
-    bindGridTap(){
-        wx.navigateTo({
-            url: 'pages/me/me',
-        })
-    }
+  bindGridTap() {
+    wx.navigateTo({
+      url: 'pages/me/me',
+    })
+  }
 });

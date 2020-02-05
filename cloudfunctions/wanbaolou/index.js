@@ -8,19 +8,17 @@ const _ = db.command;
 const request = require('request');
 const baseUrl = 'https://api-wanbaolou.xoyo.com/api/buyer/goods/list';
 const servers = [
-    {
-        zone_id: "z29",
-        name: "双线PVP搞事区",
-        servers: [
-            {
-                server_id: "gate2901",
-                name: "止戈为武"
-            }
-        ]
-    }
+  {
+    zone_id: "z29",
+    name: "双线PVP搞事区",
+    servers: [
+      {
+        server_id: "gate2901",
+        name: "止戈为武"
+      }
+    ]
+  }
 ];
-
-let consignments = {};
 
 /**
  * 拼接请求参数
@@ -28,76 +26,86 @@ let consignments = {};
  * @returns {string}
  */
 function encodeQueryParams(data) {
-    let res = [];
-    if (typeof data === "string") {
-        res = data;
-    } else if (typeof data === "object") {
-        for (let key in data) {
-            res.push(key + "=" + encodeURIComponent(data[key]));
-        }
+  let queryParams = [];
+  if (typeof data === "string") {
+    queryParams = data;
+  } else if (typeof data === "object") {
+    for (let key in data) {
+      queryParams.push(key + "=" + encodeURIComponent(data[key]));
     }
-    return res.join('&');
+  }
+  return queryParams.join('&');
 }
 
 /**
- * 获取寄售单，递归调用
+ * 获取某一页的挂单
  * @param zone_id
  * @param server_id
  * @param page
  * @param count
+ * @returns {Promise<unknown>}
  */
 function getList(zone_id, server_id, page, count) {
-    const params = {
-        zone_id: zone_id,
-        server_id: server_id,
-        'sort[single_count_price]': 0,
-        game: 'jx3',
-        page: page,
-        size: 10,
-        __ts__: (new Date()).getTime(),
-        callback: '__xfe' + count
-    };
-    const url = baseUrl + '?' + encodeQueryParams(params);
-    request({url: url, jar: true}, function (error, response, body) {
-        body = body.slice(params.callback.length + 1, -2);
-        const res = JSON.parse(body);
-        if (res.data) {
-            if (!(server_id in consignments)){
-                consignments[server_id] = [];
-            }
-            // 存入云数据库
-            res.data.list.forEach(function (item) {
-                item['server_id'] = server_id;
-                item['_id'] = item['consignment_id'];
-                db.collection('goods').add({
-                    data: item,
-                    success: function (res) {
-                    }
-                });
-                consignments[server_id].push(item);
-            });
-            if (res.data.list.length === 10) {
-                getList(zone_id, server_id, page + 1, count + 1);
-            } else {
-                console.log(consignments[server_id]);
-            }
+  const params = {
+    zone_id: zone_id,
+    server_id: server_id,
+    'sort[single_count_price]': 0,
+    game: 'jx3',
+    page: page,
+    size: 10,
+    __ts__: (new Date()).getTime(),
+    callback: '__xfe' + count
+  };
+  const url = baseUrl + '?' + encodeQueryParams(params);
+  let list = [];
+
+  return new Promise((resolve, reject) => {
+    request({url: url, jar: true},
+      (err, res) => {
+        if (err) {
+          reject('net error');
         }
+        const body = res.body.slice(params.callback.length + 1, -2);
+        const jsonRes = JSON.parse(body);
+        jsonRes.data.list.forEach(function (item) {
+          list.push(item);
+        });
+        return resolve(list);
+      })
+  })
+}
+
+/**
+ * 获取某一服务器的所有挂单
+ * @param zone_id
+ * @param server_id
+ * @returns {Promise<[]>}
+ */
+async function wblSpider(zone_id, server_id) {
+  let page = 1;
+  let count = 10;
+  let res = [];
+  let times = 1;
+
+  let list = await getList('z05', 'gate0515', page, count);
+  list.forEach(function (item) {
+    res.push(item);
+  });
+  while (list.length === 10) {
+    page += 1;
+    list = await getList('z05', 'gate0515', page, count);
+    list.forEach(function (item) {
+      res.push(item);
     });
+  }
+  return res;
 }
 
 exports.main = async (event, context) => {
-    // 先清空数据库
-    db.collection('goods').where({_id: _.neq(0)}).remove()
-        .then(res=> {
-            console.log(res)
-        });
-    servers.forEach(function (zone) {
-        zone.servers.forEach(function (server) {
-            // db.collection('goods').where({server_id: server.server_id}).remove({
-            //     success: function (res) {
-            //     }
-            // });
-            getList(zone.zone_id, server.server_id, 1, 4);
-        })
-    });
+  for (let i = 0; i < servers.length; ++i) {
+    for (let j = 0; j < servers[i].servers.length; ++j) {
+      let consignments = await wblSpider(servers[i].zone_id, servers[i].servers[j].server_id);
+      console.log(consignments);
+    }
+  }
 };
