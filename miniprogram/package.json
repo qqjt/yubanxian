@@ -6,6 +6,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "weui-wxss": "^2.0.1"
+    "@antv/wx-f2": "^2.0.1"
   }
 }

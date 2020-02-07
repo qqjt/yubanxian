@@ -2,3 +2,5 @@
 node_modules
 package-lock.json
 /cloudfunctions/test/*
+miniprogram/miniprogram_npm/*
+!miniprogram/miniprogram_npm/.gitkeep
