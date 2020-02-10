@@ -1,4 +1,6 @@
-/* 抓取万宝楼（jx3.seasunwbl.com）数据，计算各游戏服务器金价
+/*
+抓取万宝楼（jx3.seasunwbl.com）数据，计算各游戏服务器金价
+
 info: "6,150金"
 consignment_id: "542695001766117376"
 single_unit_size: 6150      每笔金数
@@ -17,6 +19,10 @@ const _ = db.command;
 
 const request = require('request');
 const baseUrl = 'https://api-wanbaolou.xoyo.com/api/buyer/goods/list';
+
+/**
+ * 服务器列表，包括各大区及服务器
+ */
 const servers = [
   {
     zone_id: "z01",
@@ -216,7 +222,58 @@ async function wblSpider(zone_id, server_id) {
   return res;
 }
 
+/**
+ * 判断对象是否非空
+ * @param obj
+ * @returns {boolean}
+ */
+function isEmpty(obj) {
+  for (let i in obj) {
+    return false;
+  }
+  return true;
+}
+
 exports.main = async (event, context) => {
+  console.log(event);
+  // 查询数据
+  if (!isEmpty(event) && event.type) {
+    const ts = new Date().getTime();
+    switch (event.type) {
+      case "single":
+        const startTime = event.startTime ? event.startTime : ts - 86400000;
+        const endTime = event.endTime ? event.endTime : ts;
+        console.log(startTime);
+        const filters = {
+          serverId: event.serverId,
+          timestamp: _.gte(startTime).and(_.lte(endTime))
+        };
+        const res = await db.collection('wbl_coin_prices').where(filters)
+          .orderBy(event.ordering?event.ordering[0]:'timestamp', event.ordering?event.ordering[1]:'asc')
+          .get();
+        return res.data;
+      case "all":
+        let overallRecord = await db.collection('wbl_coin_prices')
+          .where({
+            serverId: 'all'
+          })
+          .orderBy('timestamp', 'desc').limit(1).get();
+        if (!overallRecord.data.length) {
+          return [];
+        }
+        const timestamp = overallRecord.data[0].timestamp;
+        const result = await db.collection('wbl_coin_prices')
+          .where({
+            timestamp: timestamp,
+            serverId: _.neq('all')
+          })
+          .orderBy(event.ordering?event.ordering[0]:'serverId', event.ordering?event.ordering[1]:'asc')
+          .get();
+        return result.data;
+    }
+    return true;
+  }
+  // 定时调度，爬取数据并计算入库
   const ts = new Date().getTime();
   let allServersSummary = {
     serverName: '全服',
@@ -260,17 +317,17 @@ exports.main = async (event, context) => {
         serverSummary.totalRMB += item.remain_unit_count * item.single_unit_price;
         allServersSummary.totalRMB += item.remain_unit_count * item.single_unit_price;
 
-        if (serverSummary.minPrice === null || serverSummary.minPrice > item.single_count_price) {
+        if (serverSummary.minPrice === null || serverSummary.minPrice < item.single_count_price) {
           serverSummary.minPrice = item.single_count_price;
         }
-        if (allServersSummary.minPrice === null || allServersSummary.minPrice > item.single_count_price) {
+        if (allServersSummary.minPrice === null || allServersSummary.minPrice < item.single_count_price) {
           allServersSummary.minPrice = item.single_count_price;
         }
 
-        if (serverSummary.maxPrice === null || serverSummary.maxPrice < item.single_count_price) {
+        if (serverSummary.maxPrice === null || serverSummary.maxPrice > item.single_count_price) {
           serverSummary.maxPrice = item.single_count_price;
         }
-        if (allServersSummary.maxPrice === null || allServersSummary.maxPrice < item.single_count_price) {
+        if (allServersSummary.maxPrice === null || allServersSummary.maxPrice > item.single_count_price) {
           allServersSummary.maxPrice = item.single_count_price;
         }
       }
@@ -278,7 +335,7 @@ exports.main = async (event, context) => {
         serverSummary.avgPrice = serverSummary.totalCoins * 100 / serverSummary.totalRMB;
       }
       // 数据入库
-      db.collection('wbl_coin_prices').add({
+      await db.collection('wbl_coin_prices').add({
         data: serverSummary
       }).then((res) => {
         console.log(res);
@@ -288,7 +345,7 @@ exports.main = async (event, context) => {
   if (allServersSummary.totalRMB) {
     allServersSummary.avgPrice = allServersSummary.totalCoins * 100 / allServersSummary.totalRMB;
   }
-  db.collection('wbl_coin_prices').add({
+  await db.collection('wbl_coin_prices').add({
     data: allServersSummary
   }).then((res) => {
     console.log(res);
