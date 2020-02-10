@@ -1,4 +1,12 @@
-<view class="container">
-    <button bindtap="init">加载图表</button>
-    <ec-canvas id="mychart-dom-bar" canvas-id="mychart-bar" ec="{{ ec }}"></ec-canvas>
+<view class="page">
+    <view class="page__hd">
+        <view class="page__title">金价助手</view>
+        <view class="page__desc">《剑网三》各服务器金价，单位 “金/人民币”，数值越大表示金价越低。</view>
+        <view class="page__desc">数据来源于官方金币交易平台 “万宝楼”。</view>
+    </view>
+    <view class="page__bd">
+        <view class="container">
+            <ec-canvas id="echart" canvas-id="echart" ec="{{ ec }}"></ec-canvas>
+        </view>
+    </view>
 </view>
