@@ -59,7 +59,8 @@ Page({
           }
         },
         legend: {
-          data: ['最低价', '平均价']
+          data: ['最低价', '平均价'],
+          show: true
         },
         grid: {
           left: 20,
@@ -73,11 +74,10 @@ Page({
             type: 'value',
             axisLine: {
               lineStyle: {
-                color: '#999'
               }
             },
             axisLabel: {
-              color: '#666'
+              fontSize: '13'
             }
           }
         ],
@@ -88,11 +88,10 @@ Page({
             data: serverNames,
             axisLine: {
               lineStyle: {
-                color: '#999'
               }
             },
             axisLabel: {
-              color: '#666'
+              fontSize: '13'
             }
           }
         ],
@@ -100,10 +99,12 @@ Page({
           {
             name: '最低价',
             type: 'bar',
+            barGap: 0,
             label: {
               normal: {
                 show: true,
-                position: 'right'
+                position: 'right',
+                rich: {}
               }
             },
             data: minPrices,
@@ -116,7 +117,8 @@ Page({
             label: {
               normal: {
                 show: true,
-                position: 'right'
+                position: 'right',
+                rich: {}
               }
             },
             data: avgPrices,
