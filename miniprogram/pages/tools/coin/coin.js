@@ -29,6 +29,7 @@ Page({
       return chart;
     });
   },
+
   // 全区全服金价
   showAllChart: function () {
     wx.cloud.callFunction({
@@ -41,7 +42,7 @@ Page({
       },
     }).then(res => {
       console.log(res.result);
-      let serverNames=[];
+      let serverNames = [];
       let minPrices = [];
       let avgPrices = [];
       res.result.forEach(function (item) {
@@ -73,8 +74,7 @@ Page({
           {
             type: 'value',
             axisLine: {
-              lineStyle: {
-              }
+              lineStyle: {}
             },
             axisLabel: {
               fontSize: '13'
@@ -87,8 +87,7 @@ Page({
             axisTick: {show: false},
             data: serverNames,
             axisLine: {
-              lineStyle: {
-              }
+              lineStyle: {}
             },
             axisLabel: {
               fontSize: '13'
@@ -108,8 +107,7 @@ Page({
               }
             },
             data: minPrices,
-            itemStyle: {
-            }
+            itemStyle: {}
           },
           {
             name: '平均价',
@@ -122,14 +120,14 @@ Page({
               }
             },
             data: avgPrices,
-            itemStyle: {
-            }
+            itemStyle: {}
           }
         ]
       };
       this.chart.setOption(option);
     }).catch(console.error);
   },
+
   // 某一区服金价
   showServerChart: function (serverId) {
     wx.cloud.callFunction({
