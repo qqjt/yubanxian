@@ -4,13 +4,13 @@ Page({
       {
         name: 'accelerate',
         text: '加速宝典',
-        icon: '/images/icon_nav_form.png',
+        icon: '/images/accelerate.png',
         url: '../tools/accelerate/accelerate'
       },
       {
         name: 'coin',
         text: '金价助手',
-        icon: '/images/icon_nav_special.png',
+        icon: '/images/coin.png',
         url: '../tools/coin/coin'
       }
     ],

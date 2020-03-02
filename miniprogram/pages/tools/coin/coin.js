@@ -1,20 +1,63 @@
 import * as echarts from '../../../ec-canvas/echarts';
 
+// 获取区服名称等信息
+const app = getApp();
+const servers = app.globalData.servers;
+let zoneNames = ['全区全服'];
+let serverNames = [[]];
+servers.forEach(function (zone) {
+  zoneNames.push(zone.name);
+  let names = [];
+  zone.servers.forEach(function (server) {
+    names.push(server.name);
+  });
+  serverNames.push(names);
+});
+
 Page({
   data: {
+    multiIndex: [0, 0],
+    multiArray: [zoneNames, []],
     ec: {
       lazyLoad: true
     },
+  },
+  /**
+   * 区服选择
+   * @param e
+   */
+  bindMultiPickerChange: function (e) {
+    console.log('picker发送选择改变，携带值为', e.detail.value);
+    this.setData({
+      multiIndex: e.detail.value
+    })
+  },
+  bindMultiPickerColumnChange: function (e) {
+    console.log('修改的列为', e.detail.column, '，值为', e.detail.value);
+    let data = {
+      multiArray: this.data.multiArray,
+      multiIndex: this.data.multiIndex
+    };
+    data.multiIndex[e.detail.column] = e.detail.value;
+    if (e.detail.column === 0) {
+      data.multiArray[1] = serverNames[e.detail.value];
+      data.multiIndex[1] = 0;
+    }
+    this.setData(data);
   },
 
   onReady: function () {
     // 获取组件
     this.ecComponent = this.selectComponent('#echart');
     this.initChart();
-    this.showAllChart();
+    let wanbaolouAll = wx.getStorageSync('wanbaolou_all');
+    let wanbaolouAllExpire = wx.getStorageSync('wanbaolou_all__expire__');
+    if (!(wanbaolouAll && wanbaolouAllExpire> (new Date()).getTime())) {
+      this.refreshAllServersChart();
+    }
   },
 
-  // 点击按钮后初始化图表
+  // 初始化图表
   initChart: function () {
     this.ecComponent.init((canvas, width, height) => {
       // 获取组件的 canvas、width、height 后的回调函数
@@ -23,6 +66,14 @@ Page({
         width: width,
         height: height
       });
+      // 尝试读取缓存里的
+      let wanbaolouAll = wx.getStorageSync('wanbaolou_all');
+      let wanbaolouAllExpire = wx.getStorageSync('wanbaolou_all__expire__');
+      if (wanbaolouAll && wanbaolouAllExpire> (new Date()).getTime()) {
+        console.log('wanbaolou_all');
+        let option = this.genAllServersChartOption(wanbaolouAll);
+        chart.setOption(option);
+      }
       // 将图表实例绑定到 this 上，可以在其他成员函数（如 dispose）中访问
       this.chart = chart;
       // 注意这里一定要返回 chart 实例，否则会影响事件处理等
@@ -30,8 +81,92 @@ Page({
     });
   },
 
-  // 全区全服金价
-  showAllChart: function () {
+  // 根据数值生成全服图表的 option
+  genAllServersChartOption: function (arr) {
+    let serverNames = [];
+    let minPrices = [];
+    let avgPrices = [];
+    arr.forEach(function (item) {
+      serverNames.push(item.serverName);
+      minPrices.push(item.minPrice);
+      avgPrices.push(item.maxPrice);
+    });
+    return {
+      color: ['#37a2da', '#32c5e9'],
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+          type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        }
+      },
+      legend: {
+        data: ['最低价', '平均价'],
+        show: true
+      },
+      grid: {
+        left: 20,
+        right: 20,
+        bottom: 15,
+        top: 40,
+        containLabel: true
+      },
+      xAxis: [
+        {
+          type: 'value',
+          axisLine: {
+            lineStyle: {}
+          },
+          axisLabel: {
+            fontSize: '13'
+          }
+        }
+      ],
+      yAxis: [
+        {
+          type: 'category',
+          axisTick: {show: false},
+          data: serverNames,
+          axisLine: {
+            lineStyle: {}
+          },
+          axisLabel: {
+            fontSize: '13'
+          }
+        }
+      ],
+      series: [
+        {
+          name: '最低价',
+          type: 'bar',
+          barGap: 0,
+          label: {
+            normal: {
+              show: true,
+              position: 'right',
+              rich: {}
+            }
+          },
+          data: minPrices,
+          itemStyle: {}
+        },
+        {
+          name: '平均价',
+          type: 'bar',
+          label: {
+            normal: {
+              show: true,
+              position: 'right',
+              rich: {}
+            }
+          },
+          data: avgPrices,
+          itemStyle: {}
+        }
+      ]
+    };
+  },
+  // 刷新全区全服金价
+  refreshAllServersChart: function () {
     wx.cloud.callFunction({
       // 云函数名称
       name: 'wanbaolou',
@@ -41,94 +176,19 @@ Page({
         ordering: ['serverId', 'desc']
       },
     }).then(res => {
-      console.log(res.result);
-      let serverNames = [];
-      let minPrices = [];
-      let avgPrices = [];
-      res.result.forEach(function (item) {
-        serverNames.push(item.serverName);
-        minPrices.push(item.minPrice);
-        avgPrices.push(item.maxPrice);
-      });
-
-      let option = {
-        color: ['#37a2da', '#32c5e9'],
-        tooltip: {
-          trigger: 'axis',
-          axisPointer: {            // 坐标轴指示器，坐标轴触发有效
-            type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
-          }
-        },
-        legend: {
-          data: ['最低价', '平均价'],
-          show: true
-        },
-        grid: {
-          left: 20,
-          right: 20,
-          bottom: 15,
-          top: 40,
-          containLabel: true
-        },
-        xAxis: [
-          {
-            type: 'value',
-            axisLine: {
-              lineStyle: {}
-            },
-            axisLabel: {
-              fontSize: '13'
-            }
-          }
-        ],
-        yAxis: [
-          {
-            type: 'category',
-            axisTick: {show: false},
-            data: serverNames,
-            axisLine: {
-              lineStyle: {}
-            },
-            axisLabel: {
-              fontSize: '13'
-            }
-          }
-        ],
-        series: [
-          {
-            name: '最低价',
-            type: 'bar',
-            barGap: 0,
-            label: {
-              normal: {
-                show: true,
-                position: 'right',
-                rich: {}
-              }
-            },
-            data: minPrices,
-            itemStyle: {}
-          },
-          {
-            name: '平均价',
-            type: 'bar',
-            label: {
-              normal: {
-                show: true,
-                position: 'right',
-                rich: {}
-              }
-            },
-            data: avgPrices,
-            itemStyle: {}
-          }
-        ]
-      };
+      console.log('res.result');
+      wx.setStorageSync('wanbaolou_all', res.result);
+      wx.setStorageSync('wanbaolou_all__expire__', res.result[0]['timestamp'] + 3600000);
+      let option = this.genAllServersChartOption(res.result);
       this.chart.setOption(option);
     }).catch(console.error);
   },
 
-  // 某一区服金价
+  showAllServersChart: function() {
+    this.refreshAllServersChart();
+  },
+
+  // 显示某一区服金价
   showServerChart: function (serverId) {
     wx.cloud.callFunction({
       // 云函数名称
@@ -140,7 +200,6 @@ Page({
       },
     }).then(res => {
       console.log(res.result);
-      setOption(this.chart);
     }).catch(console.error);
   }
 });
