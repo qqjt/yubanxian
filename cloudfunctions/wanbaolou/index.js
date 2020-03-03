@@ -117,6 +117,10 @@ const servers = [
       {
         server_id: "gate2407",
         name: "凌雪藏锋"
+      },
+      {
+        server_id: "gate2409",
+        name: "风月同天"
       }
     ]
   },
@@ -235,7 +239,6 @@ function isEmpty(obj) {
 }
 
 exports.main = async (event, context) => {
-  console.log(event);
   // 查询数据
   if (!isEmpty(event) && event.type) {
     const ts = new Date().getTime();

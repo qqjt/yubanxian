@@ -119,6 +119,10 @@ App({
           {
             server_id: "gate2407",
             name: "凌雪藏锋"
+          },
+          {
+            server_id: "gate2409",
+            name: "风月同天"
           }
         ]
       },
