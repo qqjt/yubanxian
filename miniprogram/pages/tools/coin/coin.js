@@ -16,6 +16,7 @@ servers.forEach(function (zone) {
 
 Page({
   data: {
+    servers: servers,
     multiIndex: [0, 0],
     multiArray: [zoneNames, []],
     ec: {
@@ -27,13 +28,21 @@ Page({
    * @param e
    */
   bindMultiPickerChange: function (e) {
-    console.log('picker发送选择改变，携带值为', e.detail.value);
     this.setData({
       multiIndex: e.detail.value
-    })
+    });
+    if (e.detail.value[0] === 0) {
+      this.showAllServersChart();
+    } else {
+      let serverId = this.data.servers[e.detail.value[0] - 1].servers[e.detail.value[1]].server_id;
+      this.showSingleServerChart(serverId);
+    }
   },
+  /**
+   * 多列选择联动
+   * @param e
+   */
   bindMultiPickerColumnChange: function (e) {
-    console.log('修改的列为', e.detail.column, '，值为', e.detail.value);
     let data = {
       multiArray: this.data.multiArray,
       multiIndex: this.data.multiIndex
@@ -52,7 +61,7 @@ Page({
     this.initChart();
     let wanbaolouAll = wx.getStorageSync('wanbaolou_all');
     let wanbaolouAllExpire = wx.getStorageSync('wanbaolou_all__expire__');
-    if (!(wanbaolouAll && wanbaolouAllExpire> (new Date()).getTime())) {
+    if (!(wanbaolouAll && wanbaolouAllExpire > (new Date()).getTime())) {
       this.refreshAllServersChart();
     }
   },
@@ -66,11 +75,8 @@ Page({
         width: width,
         height: height
       });
-      // 尝试读取缓存里的
-      let wanbaolouAll = wx.getStorageSync('wanbaolou_all');
-      let wanbaolouAllExpire = wx.getStorageSync('wanbaolou_all__expire__');
-      if (wanbaolouAll && wanbaolouAllExpire> (new Date()).getTime()) {
-        console.log('wanbaolou_all');
+      let wanbaolouAll = wx.$storage.get('wanbaolou_all');
+      if (wanbaolouAll) {
         let option = this.genAllServersChartOption(wanbaolouAll);
         chart.setOption(option);
       }
@@ -92,7 +98,7 @@ Page({
       avgPrices.push(item.maxPrice);
     });
     return {
-      color: ['#37a2da', '#32c5e9'],
+      color: ['#07c160', '#32c5e9'],
       tooltip: {
         trigger: 'axis',
         axisPointer: {            // 坐标轴指示器，坐标轴触发有效
@@ -165,6 +171,98 @@ Page({
       ]
     };
   },
+
+  // 根据数值生成全服图表的 option
+  genSingleServersChartOption: function (arr) {
+    let timestamps = [];
+    let minPrices = [];
+    let avgPrices = [];
+    let xMin = 500, temp = 500, datetime = null;
+    arr.forEach(function (item) {
+      datetime = new Date(item.timestamp);
+      timestamps.push(datetime.format("hh:mm"));
+      minPrices.push(item.minPrice);
+      avgPrices.push(item.maxPrice);
+      temp = Math.floor(item.maxPrice / 100) * 100;
+      if (temp < xMin) {
+        xMin = temp;
+      }
+    });
+    return {
+      color: ['#07c160', '#32c5e9'],
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+          type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+        }
+      },
+      legend: {
+        data: ['最低价', '平均价'],
+        show: true
+      },
+      grid: {
+        left: 20,
+        right: 20,
+        bottom: 15,
+        top: 40,
+        containLabel: true
+      },
+      xAxis: [
+        {
+          type: 'value',
+          min: xMin,
+          axisLine: {
+            lineStyle: {}
+          },
+          axisLabel: {
+            fontSize: '13'
+          }
+        }
+      ],
+      yAxis: [
+        {
+          type: 'category',
+          axisTick: {show: false},
+          data: timestamps,
+          axisLine: {
+            lineStyle: {}
+          },
+          axisLabel: {
+            fontSize: '13'
+          }
+        }
+      ],
+      series: [
+        {
+          name: '最低价',
+          type: 'line',
+          barGap: 0,
+          label: {
+            normal: {
+              show: true,
+              position: 'right',
+              rich: {}
+            }
+          },
+          data: minPrices,
+          itemStyle: {}
+        },
+        {
+          name: '平均价',
+          type: 'line',
+          label: {
+            normal: {
+              show: true,
+              position: 'left',
+              rich: {}
+            }
+          },
+          data: avgPrices,
+          itemStyle: {}
+        }
+      ]
+    };
+  },
   // 刷新全区全服金价
   refreshAllServersChart: function () {
     wx.cloud.callFunction({
@@ -176,30 +274,44 @@ Page({
         ordering: ['serverId', 'desc']
       },
     }).then(res => {
-      console.log('res.result');
-      wx.setStorageSync('wanbaolou_all', res.result);
-      wx.setStorageSync('wanbaolou_all__expire__', res.result[0]['timestamp'] + 3600000);
+      wx.$storage.put('wanbaolou_all', res.result, res.result[0]['timestamp'] + 3600000 - (new Date()).getTime());
       let option = this.genAllServersChartOption(res.result);
       this.chart.setOption(option);
     }).catch(console.error);
   },
 
-  showAllServersChart: function() {
-    this.refreshAllServersChart();
+  //显示全区全服金价，数据过期则刷新
+  showAllServersChart: function () {
+    let wanbaolouAll = wx.$storage.get('wanbaolou_all');
+    if (!wanbaolouAll) {
+      this.refreshAllServersChart();
+    } else {
+      let option = this.genAllServersChartOption(wanbaolouAll);
+      this.chart.setOption(option);
+    }
   },
 
   // 显示某一区服金价
-  showServerChart: function (serverId) {
-    wx.cloud.callFunction({
-      // 云函数名称
-      name: 'wanbaolou',
-      // 传给云函数的参数
-      data: {
-        type: 'single',
-        serverId: serverId
-      },
-    }).then(res => {
-      console.log(res.result);
-    }).catch(console.error);
+  showSingleServerChart: function (serverId) {
+    let singleKey = 'wanbaolou_' + serverId;
+    let wanbaolouSingle = wx.$storage.get(singleKey);
+    if (wanbaolouSingle) {
+      let option = this.genSingleServersChartOption(wanbaolouSingle);
+      this.chart.setOption(option);
+    } else {
+      wx.cloud.callFunction({
+        // 云函数名称
+        name: 'wanbaolou',
+        // 传给云函数的参数
+        data: {
+          type: 'single',
+          serverId: serverId
+        },
+      }).then(res => {
+        wx.$storage.put('wanbaolou_' + serverId, res.result, res.result[res.result.length-1]['timestamp'] + 3600000 - (new Date()).getTime());
+        let option = this.genSingleServersChartOption(res.result);
+        this.chart.setOption(option);
+      }).catch(console.error);
+    }
   }
 });
