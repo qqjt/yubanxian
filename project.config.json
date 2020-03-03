@@ -62,6 +62,13 @@
 					"id": -1,
 					"name": "pages/tools/coin/coin",
 					"pathName": "pages/tools/coin/coin",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/me/me",
+					"pathName": "pages/me/me",
 					"scene": null
 				}
 			]
