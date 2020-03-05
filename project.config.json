@@ -24,7 +24,7 @@
 		}
 	},
 	"projectname": "%E4%BD%99%E5%8D%8A%E4%BB%99",
-	"libVersion": "2.10.1",
+	"libVersion": "2.10.2",
 	"simulatorType": "wechat",
 	"simulatorPluginLibVersion": {},
 	"cloudfunctionTemplateRoot": "cloudfunctionTemplate",
