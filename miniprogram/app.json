@@ -9,15 +9,15 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "iconPath": "/images/icon_nav_widget.png",
-        "selectedIconPath": "/images/icon_nav_widget.png",
+        "iconPath": "/images/icon_home.png",
+        "selectedIconPath": "/images/icon_home.png",
         "selectedColor": "#07c160",
         "text": "首页"
       },
       {
         "pagePath": "pages/me/me",
-        "iconPath": "/images/icon_nav_special.png",
-        "selectedIconPath": "/images/icon_nav_special.png",
+        "iconPath": "/images/icon_me.png",
+        "selectedIconPath": "/images/icon_me.png",
         "selectedColor": "#07c160",
         "text": "我的"
       }
