@@ -17,7 +17,7 @@
         <view class="weui-panel weui-panel_access">
             <view class="weui-panel__hd">成就列表</view>
             <view class="weui-panel__bd">
-                <view wx:for="{{achievements}}" wx:key="name" class="weui-media-box weui-media-box_appmsg"
+                <view wx:for="{{achievements}}" wx:key="_id" class="weui-media-box weui-media-box_appmsg"
                            hover-class="weui-cell_active">
                     <view class="weui-media-box__hd weui-media-box__hd_in-appmsg">
                         <image class="weui-media-box__thumb" src="{{item.iconUrl}}"/>
@@ -36,7 +36,7 @@
                 <view class="weui-loadmore__tips">正在加载</view>
             </view>
             <view class="weui-loadmore weui-loadmore_line" wx:else>
-                <view class="weui-loadmore__tips weui-loadmore__tips_in-line">暂无数据</view>
+                <view class="weui-loadmore__tips weui-loadmore__tips_in-line">这里是底线了</view>
             </view>
         </view>
     </view>

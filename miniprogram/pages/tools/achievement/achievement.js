@@ -97,6 +97,7 @@ Page({
     this.setData(data);
   },
   getAchievements: function () {
+    console.log(this.data);
     this.setData({
       loading: 1
     });
@@ -110,16 +111,18 @@ Page({
         subMenu = '';
       queryParams['subMenu'] = subMenu;
     }
+    console.log(queryParams);
     wx.cloud.callFunction({
       name: "dbGetList",
       data: queryParams
     }).then(res => {
       if (res.result.length) {
         let newAchievements = this.data.achievements.concat(res.result);
+        const loading = res.result.length === queryParams['limit']? 0: -1;
         this.setData({
           achievements: newAchievements,
           'queryParams.page': this.data.queryParams.page + 1,
-          loading: 0
+          loading: loading
         });
       } else {
         this.setData({
