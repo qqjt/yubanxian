@@ -1,0 +1,13 @@
+[
+  {
+    "name": "getAchievements",
+    "value": {
+      "collectionName": "achievements",
+      "page": 3,
+      "menu": "帮会",
+      "limit": 10,
+      "ordering": "-_id",
+      "subMenu": "帮会钓鱼"
+    }
+  }
+]

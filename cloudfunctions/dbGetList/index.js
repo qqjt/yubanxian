@@ -8,9 +8,9 @@ const _ = db.command;
 exports.main = async (event, context) => {
   console.log('event', event);
   let query = db.collection(event.collectionName);
-  let ordering = ['_id', 'desc'];
+  let ordering = ['', ''];
   let page = 1;
-  let limit = 10;
+  let limit = 100;
   let conditions = {};
 
   Object.keys(event).forEach((key) => {
@@ -22,6 +22,7 @@ exports.main = async (event, context) => {
       case 'ordering':
         if (event[key][0] === '-') {
           ordering[0] = event[key].substr(1)
+          ordering[1] = 'desc';
         } else {
           ordering[0] = event[key];
           ordering[1] = 'asc';
@@ -38,13 +39,27 @@ exports.main = async (event, context) => {
         break;
     }
   });
-  console.log(conditions);
-  query = query.where(conditions);
-  query = query.orderBy(ordering[0], ordering[1]);
-  if (page > 1) {
-    query = query.skip(limit * (page - 1));
+  if (!isEmpty(conditions)) {
+    query = query.where(conditions);
   }
-  query = query.limit(limit);
+  if (ordering[0])
+    query = query.orderBy(ordering[0], ordering[1]);
+  if (page > 1)
+    query = query.skip(limit * (page - 1));
+  if(limit !==0 )
+    query = query.limit(limit);
   const result = await query.get();
   return result.data;
 };
+
+/**
+ * 判断对象是否非空
+ * @param obj
+ * @returns {boolean}
+ */
+function isEmpty(obj) {
+  for (let i in obj) {
+    return false;
+  }
+  return true;
+}
