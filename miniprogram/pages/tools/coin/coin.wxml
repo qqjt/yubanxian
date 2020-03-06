@@ -5,13 +5,17 @@
         <view class="page__desc">数据来源于官方金币交易平台 “万宝楼”。</view>
     </view>
     <view class="page__bd">
-        <view class="server-picker">
-            <picker mode="multiSelector" bindchange="bindMultiPickerChange" bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}" range="{{multiArray}}">
-                <view class="picker button-sp-area">
-                    <button class="weui-btn mini-btn" type="primary" size="mini">{{multiArray[0][multiIndex[0]]}}</button>
-                    <button wx:if="{{multiIndex[0]>0}}" class="weui-btn mini-btn" type="primary" size="mini">{{multiArray[1][multiIndex[1]]}}</button>
+        <view class="weui-cells">
+            <view class="weui-cell weui-cell_select picker button-sp-area">
+                <view class="weui-cell__bd">
+                    <picker mode="multiSelector" bindchange="bindMultiPickerChange"
+                            bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}"
+                            range="{{multiArray}}">
+                        <view class="weui-select">{{multiArray[0][multiIndex[0]]}}{{multiIndex[0]>0?' - '+multiArray[1][multiIndex[1]]:''}}
+                        </view>
+                    </picker>
                 </view>
-            </picker>
+            </view>
         </view>
         <view class="container">
             <ec-canvas id="echart" canvas-id="echart" ec="{{ ec }}"></ec-canvas>

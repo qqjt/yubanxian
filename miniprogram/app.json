@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/me/me",
     "pages/tools/accelerate/accelerate",
-    "pages/tools/coin/coin"
+    "pages/tools/coin/coin",
+    "pages/tools/achievement/achievement"
   ],
   "tabBar": {
     "list": [

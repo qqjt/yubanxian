@@ -35,6 +35,7 @@ exports.main = async (event, context) => {
         break;
     }
   });
+  query = query.where(conditions);
   query = query.orderBy(ordering[0], ordering[1]);
   if (page > 1) {
     query = query.skip(limit * (page - 1));
