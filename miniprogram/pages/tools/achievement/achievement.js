@@ -8,7 +8,7 @@ Page({
     queryParams: {
       collectionName: 'achievements',
       page: 1,
-      limit: 10,
+      limit: 20,
     }
   },
   onReady: function () {

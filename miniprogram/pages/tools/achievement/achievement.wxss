@@ -1,1 +1,7 @@
-/* miniprogram/pages/tools/achievement/achievement.wxss */
+.weui-media-box__hd_in-appmsg {
+  margin-right: 16px;
+  width: 48px;
+  height: 48px;
+  line-height: 48px;
+  text-align: center;
+}
