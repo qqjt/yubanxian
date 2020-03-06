@@ -6,6 +6,7 @@ const _ = db.command;
 
 // 云函数入口函数
 exports.main = async (event, context) => {
+  console.log('event', event);
   let query = db.collection(event.collectionName);
   let ordering = ['_id', 'desc'];
   let page = 1;
@@ -15,6 +16,8 @@ exports.main = async (event, context) => {
   Object.keys(event).forEach((key) => {
     switch (key) {
       case 'collectionName':
+        break;
+      case 'userInfo':
         break;
       case 'ordering':
         if (event[key][0] === '-') {
@@ -35,6 +38,7 @@ exports.main = async (event, context) => {
         break;
     }
   });
+  console.log(conditions);
   query = query.where(conditions);
   query = query.orderBy(ordering[0], ordering[1]);
   if (page > 1) {

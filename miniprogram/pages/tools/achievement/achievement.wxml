@@ -13,11 +13,15 @@
                     </view>
                 </navigator>
             </view>
-            <view class="weui-panel__ft" bind:tap="getAchievements">
-                <view class="weui-cell weui-cell_access weui-cell_link">
-                    <view class="weui-cell__bd">查看更多</view>
-                    <view class="weui-cell__ft weui-cell__ft_in-access"></view>
-                </view>
+            <view class="weui-loadmore weui-loadmore_line" bind:tap="getAchievements" wx:if="{{loading===0}}">
+                <view class="weui-loadmore__tips weui-loadmore__tips_in-line">点击加载更多</view>
+            </view>
+            <view class="weui-loadmore" wx:elif="{{loading===1}}">
+                <view class="weui-loading"></view>
+                <view class="weui-loadmore__tips">正在加载</view>
+            </view>
+            <view class="weui-loadmore weui-loadmore_line" wx:else>
+                <view class="weui-loadmore__tips weui-loadmore__tips_in-line">暂无数据</view>
             </view>
         </view>
     </view>
