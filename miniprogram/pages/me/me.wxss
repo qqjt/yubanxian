@@ -27,7 +27,8 @@
 
 .userinfo-avatar[size] {
   width: 100rpx;
-}
+  height: 100rpx;
+ }
 
 
 .userinfo-avatar:after {
