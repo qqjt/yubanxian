@@ -6,7 +6,7 @@ const _ = db.command;
 
 // 云函数入口函数
 exports.main = async (event, context) => {
-  console.log('event', event);
+  console.log(event);
   let query = db.collection(event.collectionName);
   let ordering = ['', ''];
   let page = 1;
@@ -21,11 +21,18 @@ exports.main = async (event, context) => {
         break;
       case 'ordering':
         if (event[key][0] === '-') {
-          ordering[0] = event[key].substr(1)
+          ordering[0] = event[key].substr(1);
           ordering[1] = 'desc';
         } else {
           ordering[0] = event[key];
           ordering[1] = 'asc';
+        }
+        break;
+      case 'openid': // 添加 openid 查询条件，event.openid 为布尔值或表中的字段名
+        if (event.openid) {
+          const openidStr = typeof(event.openid)=='string'?event.openid:'openid';
+          const wxContext = cloud.getWXContext();
+          conditions[openidStr] = wxContext.OPENID;
         }
         break;
       case 'page':
@@ -39,6 +46,7 @@ exports.main = async (event, context) => {
         break;
     }
   });
+  console.log(limit);
   if (!isEmpty(conditions)) {
     query = query.where(conditions);
   }

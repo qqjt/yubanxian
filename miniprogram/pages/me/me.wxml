@@ -1,20 +1,83 @@
 <view class="page">
     <view class="page__hd">
-        <view class="page__title">余半仙</view>
-        <view class="page__desc">《剑侠情缘网络版叁》（剑网3）实用小工具。</view>
+        <view class="weui-media-box weui-media-box_appmsg" hover-class="weui-cell_active">
+            <view class="weui-media-box__hd weui-media-box__hd_in-appmsg">
+                <view class="weui-media-box__thumb">
+                    <open-data type="userAvatarUrl"></open-data>
+                </view>
+            </view>
+            <view class="weui-media-box__bd weui-media-box__bd_in-appmsg">
+                <view class="weui-media-box__title">
+                    <open-data type="userNickName" class="weui-media-box__title"></open-data>
+                </view>
+                <view class="weui-media-box__desc">...</view>
+            </view>
+        </view>
     </view>
     <view class="page__bd">
-        <!-- 用户 openid -->
-        <view class="userinfo">
-            <button
-                    open-type="getUserInfo"
-                    bindgetuserinfo="onGetUserInfo"
-                    class="userinfo-avatar"
-                    style="background-image: url({{userInfo.avatarUrl?userInfo.avatarUrl:'/images/user-unlogin.png'}})"
-                    size="default"
-            ></button>
-            <view class="userinfo-nickname-wrapper">
-                <button class="userinfo-nickname">{{userInfo.nickName?userInfo.nickName:''}}</button>
+        <swiper indicator-dots="true">
+            <swiper-item wx:for="{{characters}}" wx:key="_id">
+                <view class="swiper-item-content">
+                    <view>
+                        <view>{{item.zoneName}}/{{item.serverName}}</view>
+                        <view>{{item.menpai}}·{{item.id}}</view>
+                    </view>
+                </view>
+            </swiper-item>
+            <swiper-item>
+                <view class="swiper-item-content">
+                    <button bindtap="openDialog" class="weui-btn" type="default" role="button" aria-disabled="false">+ 添加角色</button>
+                </view>
+            </swiper-item>
+        </swiper>
+        <view class="{{showDialog ? 'weui-demo-dialog_show' : 'weui-demo-dialog'}}">
+            <view class="weui-mask" bindtap="closeDialog"></view>
+            <view class="weui-dialog__wrp" bindtap="closeDialog">
+                <view class="weui-dialog" catchtap="stopEvent">
+                    <view class="weui-dialog__hd">
+                        <view class="weui-dialog__title">添加角色</view>
+                    </view>
+                    <view class="weui-dialog__bd">
+<!--                        <image class="weui-article__img" src="" mode="aspectFill" style="max-width:100%;"/>-->
+                        <view class="weui-form">
+                            <view class="weui-form__control-area">
+                                <view class="weui-cells__group weui-cells__group_form">
+                                    <view class="weui-cells weui-cells_form">
+                                        <view class="weui-cell weui-cell_select picker button-sp-area">
+                                            <view class="weui-cell__bd">
+                                                <picker mode="multiSelector" bindchange="bindMultiPickerChange"
+                                                        bindcolumnchange="bindMultiPickerColumnChange" value="{{multiIndex}}"
+                                                        range="{{multiArray}}">
+                                                    <view class="weui-select">{{multiArray[0][multiIndex[0]]}}{{multiIndex[0]>0?' - '+multiArray[1][multiIndex[1]]:''}}
+                                                    </view>
+                                                </picker>
+                                            </view>
+                                        </view>
+                                        <view class="weui-cell weui-cell_select">
+                                            <view class="weui-cell__bd">
+                                                <picker bindchange="bindMenpaiChange" value="{{menpaiIndex}}" range="{{menpaiList}}">
+                                                    <view class="weui-select weui-select_in-select-after">{{menpaiList[menpaiIndex]}}</view>
+                                                </picker>
+                                            </view>
+                                        </view>
+                                        <view class="weui-cell">
+                                            <view class="weui-cell__hd">
+                                                <label class="weui-label">角色ID</label>
+                                            </view>
+                                            <view class="weui-cell__bd">
+                                                <input class="weui-input" type="text" value="{{character.id}}" bind:input="bindIdInput" placeholder="请输入角色号"/>
+                                            </view>
+                                        </view>
+                                    </view>
+                                </view>
+                            </view>
+                        </view>
+                    </view>
+                    <view class="weui-dialog__ft">
+                        <view class="weui-dialog__btn weui-dialog__btn_default" bindtap="closeDialog">取消</view>
+                        <view class="weui-dialog__btn" bindtap="confirmDialog">确定</view>
+                    </view>
+                </view>
             </view>
         </view>
     </view>

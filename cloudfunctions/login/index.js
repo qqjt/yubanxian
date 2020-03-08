@@ -40,6 +40,7 @@ function saveOrUpdate(openid, userInfo) {
           db.collection('users').add({
             data: userInfo
           }).then((res) => {
+            userInfo['_id'] = res._id;
             resolve(userInfo)
           }).catch((e) => {
             console.log(e);
