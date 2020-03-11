@@ -55,6 +55,8 @@ Page({
     ],
     qixueIndex: 0
   },
+  onShareAppMessage: function () {
+  },
   bindCDInput: function (e) {
     this.setData({
       skillCD: e.detail.value

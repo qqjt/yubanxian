@@ -65,7 +65,8 @@ Page({
       this.refreshAllServersChart();
     }
   },
-
+  onShareAppMessage: function () {
+  },
   // 初始化图表
   initChart: function () {
     this.ecComponent.init((canvas, width, height) => {

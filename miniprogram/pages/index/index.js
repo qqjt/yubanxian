@@ -21,4 +21,6 @@ Page({
       }
     ],
   },
+  onShareAppMessage: function () {
+  }
 });

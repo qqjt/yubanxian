@@ -15,6 +15,8 @@ Page({
     this.initCategorySelect();
     this.getAchievements();
   },
+  onShareAppMessage: function () {
+  },
   initCategorySelect: function () {
     // 获取成就分类
     let achievementCategories = wx.$storage.get('achievement_categories');
